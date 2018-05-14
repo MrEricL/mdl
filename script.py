@@ -1,3 +1,4 @@
+import pprint
 import mdl
 from display import *
 from matrix import *
@@ -40,9 +41,14 @@ def run(filename):
     step_3d = 20
 
     p = mdl.parseFile(filename)
-
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(p) 
+    print "\n\n"
     if p:
         (commands, symbols) = p
+        for each in commands:
+            print each
+
     else:
         print "Parsing failed."
         return
