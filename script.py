@@ -1,5 +1,4 @@
 import pprint
-from mdl import *
 
 import mdl
 from display import *
@@ -33,14 +32,16 @@ def run(filename):
                 0.5]
 
     color = [0, 0, 0]
-    tmp = new_matrix()
-    ident( tmp )
+    polygons = new_matrix()
+    ident( polygons )
 
-    stack = [ [x[:] for x in tmp] ]
+    systems = [ [x[:] for x in polygons] ]
     screen = new_screen()
     zbuffer = new_zbuffer()
-    tmp = []
+    polygons = []
     step_3d = 20
+
+
 
     p = mdl.parseFile(filename)
     #pp = pprint.PrettyPrinter(indent=4)
@@ -49,8 +50,62 @@ def run(filename):
     if p:
         (commands, symbols) = p
         for each in commands:
-            if each[0].upper() in tokens:
-                print True
+            #print each
+            if each[0] == "sphere":
+                add_sphere(polygons,
+                           float(each[1]), float(each[2]), float(each[3]),
+                           float(each[4]), step_3d)
+                matrix_mult( systems[-1], polygons )
+                draw_polygons(polygons, screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect)
+                polygons = []
+            elif each[0] == "torus":
+                add_torus(polygons,
+                      float(each[1]), float(each[2]), float(each[3]),
+                      float(each[4]), float(each[5]), step_3d)
+                matrix_mult( systems[-1], polygons )
+                draw_polygons(polygons, screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect)
+                polygons = []
+            elif each[0] == "box":
+
+                add_box(polygons,
+                    float(each[1]), float(each[2]), float(each[3]),
+                    float(each[4]), float(each[5]), float(each[6]))
+                matrix_mult( systems[-1], polygons )
+                draw_polygons(polygons, screen, zbuffer, view, ambient, light, areflect, dreflect, sreflect)
+                polygons = []
+            elif each[0] == "line":
+                add_edge( edges,
+                      float(each[1]), float(each[2]), float(each[3]),
+                      float(each[4]), float(each[5]), float(each[6]) )
+                matrix_mult( systems[-1], edges )
+                draw_lines(eges, screen, zbuffer, color)
+                edges = []
+            elif each[0] == "move":
+                t = make_translate(float(each[1]), float(each[2]), float(each[3]))
+                matrix_mult( systems[-1], t )
+                systems[-1] = [ x[:] for x in t]
+            elif each[0] == "scale":
+                t = make_scale(float(each[1]), float(each[2]), float(each[3]))
+                matrix_mult( systems[-1], t )
+                systems[-1] = [ x[:] for x in t]
+            elif each[0] == "rotate":
+                theta = float(each[2]) * (math.pi / 180)
+                if each[1] == 'x':
+                    t = make_rotX(theta)
+                elif each[1] == 'y':
+                    t = make_rotY(theta)
+                else:
+                    t = make_rotZ(theta)
+                matrix_mult( systems[-1], t )
+                systems[-1] = [ x[:] for x in t]
+            elif each[0] == "push":
+                systems.append( [x[:] for x in systems[-1]] )
+            elif each[0] == "pop":
+                systems.pop()
+            elif each[0] == "save":
+                save_extension(screen, each[1]+each[2])
+            elif each[0] == "display":
+                display(screen)
 
     else:
         print "Parsing failed."
