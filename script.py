@@ -5,6 +5,20 @@ from display import *
 from matrix import *
 from draw import *
 
+
+def sanitize(command):
+    if (command[0] == "rotate"):
+        return command
+    ret = [command[0]]
+    i = 1
+    while i < len(command):
+        if isinstance(command[i], float):
+            ret.append(command[i])
+        i+=1
+    return ret
+
+
+
 def run(filename):
     """
     This function runs an mdl script
@@ -41,7 +55,7 @@ def run(filename):
     polygons = []
     step_3d = 20
 
-
+    edges = []
 
     p = mdl.parseFile(filename)
     #pp = pprint.PrettyPrinter(indent=4)
@@ -50,7 +64,7 @@ def run(filename):
     if p:
         (commands, symbols) = p
         for each in commands:
-            #print each
+            each  = sanitize(each)
             if each[0] == "sphere":
                 add_sphere(polygons,
                            float(each[1]), float(each[2]), float(each[3]),
@@ -78,7 +92,7 @@ def run(filename):
                       float(each[1]), float(each[2]), float(each[3]),
                       float(each[4]), float(each[5]), float(each[6]) )
                 matrix_mult( systems[-1], edges )
-                draw_lines(eges, screen, zbuffer, color)
+                draw_lines(edges, screen, zbuffer, color)
                 edges = []
             elif each[0] == "move":
                 t = make_translate(float(each[1]), float(each[2]), float(each[3]))
