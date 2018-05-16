@@ -7,7 +7,7 @@ from draw import *
 
 
 def sanitize(command):
-    if (command[0] == "rotate"):
+    if (command[0] == "rotate" or command[0] =="save" or command == "display"):
         return command
     ret = [command[0]]
     i = 1
@@ -15,7 +15,7 @@ def sanitize(command):
         if isinstance(command[i], float):
             ret.append(command[i])
         i+=1
-    return ret
+    return tuple(ret)
 
 
 
@@ -53,7 +53,7 @@ def run(filename):
     screen = new_screen()
     zbuffer = new_zbuffer()
     polygons = []
-    step_3d = 20
+    step_3d = 30
 
     edges = []
 
